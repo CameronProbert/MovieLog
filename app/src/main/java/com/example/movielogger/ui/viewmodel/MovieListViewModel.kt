@@ -1,19 +1,17 @@
 package com.example.movielogger.ui.viewmodel
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.movielogger.data.movie.IMovieRepo
+import com.example.movielogger.data.movie.Movie
 import com.example.movielogger.data.movie.MovieSummary
 import com.example.movielogger.ui.view.MovieScreenState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -26,24 +24,38 @@ class MovieListViewModel @Inject constructor(
     private val _selectedView = MutableStateFlow(MovieScreenState.LIST)
     val selectedView: StateFlow<MovieScreenState> = _selectedView.asStateFlow()
 
-    private val _selectedMovie = MutableStateFlow<MovieSummary?>(null)
-    val selectedMovie: StateFlow<MovieSummary?> = _selectedMovie.asStateFlow()
+    private val _selectedMovie = MutableStateFlow<Movie?>(null)
+    val selectedMovie: StateFlow<Movie?> = _selectedMovie.asStateFlow()
 
     init {
-        getAllMovies()
+        viewModelScope.launch {
+            getAllMovies()
+        }
     }
 
-    fun getAllMovies() {
-        _movieList.tryEmit(movieRepo.getAll())
+    suspend fun getAllMovies() {
+        val getAllMoviesRes = movieRepo.getAll()
+        if (getAllMoviesRes.isSuccess) {
+            _movieList.tryEmit(getAllMoviesRes.getOrNull())
+        } else {
+            getAllMoviesRes.getOrElse { Log.e("MovieListViewModel", "getAllMovies(): ${it.message}", it) }
+        }
     }
 
     fun newMovie() {
         _selectedView.tryEmit(MovieScreenState.DETAIL)
-        _selectedMovie.tryEmit(null)
+        _selectedMovie.tryEmit(Movie(title = ""))
     }
 
     fun editMovie(summary: MovieSummary) {
-        _selectedView.tryEmit(MovieScreenState.DETAIL)
-        _selectedMovie.tryEmit(summary)
+        viewModelScope.launch {
+            val getMovieRes = movieRepo.get(summary.id)
+            if (getMovieRes.isSuccess) {
+                _selectedView.tryEmit(MovieScreenState.DETAIL)
+                _selectedMovie.tryEmit(getMovieRes.getOrNull())
+            } else {
+                getMovieRes.getOrElse { Log.e("MovieListViewModel", "editMovie(): ${it.message}", it) }
+            }
+        }
     }
 }

@@ -1,17 +1,18 @@
 package com.example.movielogger.data.movie
 
-import com.example.movielogger.data.DataSource
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ViewModelComponent
-import java.util.UUID
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import java.util.*
 import javax.inject.Inject
 
 interface IMovieRepo {
-    fun getAll(): List<MovieSummary>
-    fun get(id: UUID): Movie
-    fun store(movie: Movie)
+    suspend fun getAll(): Result<List<MovieSummary>>
+    suspend fun get(id: UUID): Result<Movie?>
+    suspend fun store(movie: Movie): Result<Unit>
 
 }
 
@@ -19,17 +20,24 @@ class MovieRepo @Inject constructor(
     val dao: MovieDao
 ) : IMovieRepo {
 
-    override fun getAll(): List<MovieSummary> {
-        return DataSource.loadMovies().map { it.summary }
-        // TODO: return dao.getAll().map { it.toDomain().summary }
+    override suspend fun getAll(): Result<List<MovieSummary>> {
+//        return DataSource.loadMovies().map { it.summary }
+
+        return withContext(Dispatchers.IO) {
+            Result.runCatching { dao.getAll().map { it.toDomain().summary } }
+        }
     }
 
-    override fun get(id: UUID): Movie {
-        return dao.loadAllByIds(id.toString()).first().toDomain()
+    override suspend fun get(id: UUID): Result<Movie?> {
+        return withContext(Dispatchers.IO) {
+            Result.runCatching { dao.loadAllByIds(id.toString()).firstOrNull()?.toDomain() }
+        }
     }
 
-    override fun store(movie: Movie) {
-        dao.update(MovieDbo.fromDomain(movie))
+    override suspend fun store(movie: Movie): Result<Unit> {
+        return withContext(Dispatchers.IO) {
+            Result.runCatching { dao.update(MovieDbo.fromDomain(movie)) }
+        }
     }
 }
 
