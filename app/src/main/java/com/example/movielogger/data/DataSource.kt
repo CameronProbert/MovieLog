@@ -1,7 +1,7 @@
 package com.example.movielogger.data
 
 import com.example.movielogger.data.movie.Movie
-import com.example.movielogger.data.movie.Person
+import com.example.movielogger.data.person.Person
 import java.time.LocalDate
 
 /**
@@ -13,7 +13,7 @@ object DataSource {
         return listOf(
             Movie(
                 title = "The Lord of the Rings: The Fellowship of the Ring",
-                viewedWith = listOf(Person("Caroline Logan")),
+                viewedWith = listOf(Person(name = "Caroline Logan")),
                 dateViewed = LocalDate.of(2001, 5, 3),
                 rating = 10
             ),

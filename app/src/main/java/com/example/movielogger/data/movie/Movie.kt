@@ -4,11 +4,11 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.example.movielogger.data.Dbo
+import com.example.movielogger.data.person.Person
 import kotlinx.serialization.Serializable
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import java.util.UUID
-import kotlin.collections.emptyList
+import java.util.*
 
 data class Movie(
     val id: UUID = UUID.randomUUID(),
@@ -16,17 +16,13 @@ data class Movie(
     val dateAdded: LocalDate? = null,
     val dateViewed: LocalDate? = null,
     val rating: Int? = null,
-    val comments: String? = null,
+    val notes: String? = null,
     val viewedWith: List<Person> = emptyList(),
     val suggestedBy: List<Person> = emptyList(),
 ) {
     val summary: MovieSummary
         get() = MovieSummary(id = id, title = title, dateViewed = dateViewed, rating = rating)
 }
-
-data class Person(
-    val name: String,
-)
 
 data class MovieSummary(
     val id: UUID = UUID.randomUUID(),
@@ -43,7 +39,7 @@ data class MovieDbo(
     @ColumnInfo(name = "date_added") val dateAdded: String?,
     @ColumnInfo(name = "date_viewed") val dateViewed: String?,
     val rating: Int?,
-    val comments: String?,
+    val notes: String?,
     @ColumnInfo(name = "viewed_with") val viewedWith: String?,
     @ColumnInfo(name = "suggested_by") val suggestedBy: String?,
 ): Dbo<Movie> {
@@ -54,7 +50,7 @@ data class MovieDbo(
             dateAdded = dateAdded.let { LocalDate.parse(it, DateTimeFormatter.ISO_LOCAL_DATE) },
             dateViewed = dateViewed.let { LocalDate.parse(it, DateTimeFormatter.ISO_LOCAL_DATE) },
             rating = rating,
-            comments = comments,
+            notes = notes,
             viewedWith = viewedWith?.split(",")?.map { Person(name = it) } ?: emptyList(),
             suggestedBy = suggestedBy?.split(",")?.map { Person(name = it) } ?: emptyList(),
         )
@@ -68,7 +64,7 @@ data class MovieDbo(
                 dateAdded = movie.dateAdded?.format(DateTimeFormatter.ISO_LOCAL_DATE),
                 dateViewed = movie.dateViewed?.format(DateTimeFormatter.ISO_LOCAL_DATE),
                 rating = movie.rating,
-                comments = movie.comments,
+                notes = movie.notes,
                 viewedWith = movie.viewedWith.joinToString { it.name },
                 suggestedBy = movie.suggestedBy.joinToString { it.name },
             )

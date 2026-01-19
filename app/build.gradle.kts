@@ -55,6 +55,12 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.5")
     implementation("androidx.fragment:fragment-ktx:1.8.9")
 
+    val appcompat_version = "1.7.1"
+
+    implementation("androidx.appcompat:appcompat:$appcompat_version")
+    // For loading and tinting drawables on older versions of the platform
+    implementation("androidx.appcompat:appcompat-resources:$appcompat_version")
+
     val hilt_version = "2.57.2"
 
     implementation("com.google.dagger:hilt-android:$hilt_version")

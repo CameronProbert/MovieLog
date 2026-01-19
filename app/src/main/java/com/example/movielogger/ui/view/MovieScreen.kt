@@ -1,18 +1,18 @@
 package com.example.movielogger.ui.view
 
+import android.util.Log
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.movielogger.data.movie.MovieSummary
 import com.example.movielogger.ui.viewmodel.MovieListViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MovieScreen(
     movieListViewModel: MovieListViewModel = viewModel()
@@ -34,13 +34,11 @@ fun MovieScreen(
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
-            Surface(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 16.dp), color = MaterialTheme.colorScheme.background
-            ) {
-                Text(textAlign = TextAlign.Center, text = "Movie Log")
-            }
+            TopAppBar(
+                colors = TopAppBarDefaults.topAppBarColors(),
+                title = { Text(textAlign = TextAlign.Center, text = "Movie Log") },
+
+            )
         },
         floatingActionButton = {
             FloatingActionButton(onClick = {
@@ -73,7 +71,7 @@ fun MovieScreen(
                 if (editMovie.value == null) {
                     Text("Loading...")
                 } else {
-                    MovieDetailScreen(editMovie.value!!)
+                    MovieDetailScreen(editMovie.value!!, onSave = { Log.i("MovieScreen", "MovieScreen: Saving movie") })
                 }
             }
         }
