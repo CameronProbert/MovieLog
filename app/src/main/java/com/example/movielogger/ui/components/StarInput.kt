@@ -17,15 +17,21 @@ fun StarInput(
     readonly: Boolean = false,
     onChange: (Int) -> Unit = {},
 ) {
-
     var selectedRating by remember { mutableStateOf(initialRating) }
 
-    Row (horizontalArrangement = Arrangement.spacedBy(-8.dp)) {
+    fun onRatingChange(starNum: Int) {
+        if (!readonly) {
+            selectedRating = starNum
+            onChange(starNum)
+        }
+    }
+
+    Row (horizontalArrangement = Arrangement.spacedBy((-8).dp)) {
         (1..5).forEach { starNum ->
             IconButton(onClick = {
-                selectedRating = starNum
-                onChange(starNum)
-            }) {
+                onRatingChange(starNum)
+            },
+                enabled = !readonly) {
                 val icon = when {
                     selectedRating == null -> R.drawable.star_24px
                     starNum <= selectedRating!! -> R.drawable.star_filled_24px
@@ -38,12 +44,24 @@ fun StarInput(
     }
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
-fun StarInputPreview() {
+fun StarInputPreviewEnabled() {
     MovieLoggerTheme {
         StarInput(
-            initialRating = 3
+            initialRating = 3,
+            readonly = false
+        ) {}
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun StarInputPreviewDisabled() {
+    MovieLoggerTheme {
+        StarInput(
+            initialRating = 3,
+            readonly = true
         ) {}
     }
 }

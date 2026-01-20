@@ -114,7 +114,7 @@ fun MovieDetailScreen(initialMovie: Movie, onSave: (Movie) -> Unit) {
     }
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 fun MovieDetailScreenPreview() {
     MovieLoggerTheme {
